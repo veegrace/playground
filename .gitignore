@@ -1,0 +1,9 @@
+vendor/
+api/
+advanced/
+testdata/
+*.exe
+*.out
+*.prof
+logger.md
+notes.md
