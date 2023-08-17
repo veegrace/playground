@@ -1,0 +1,13 @@
+syntax = "proto3";
+package prototest;
+option go_package = "github.com/veegrace/playground/golang/prototest/pb";
+import "google/protobuf/any.proto";
+
+message SampleMessage {
+    google.protobuf.Any Error = 1;
+}
+
+message MyError {
+    int32 Status = 1;
+    string Reason = 2;
+}
