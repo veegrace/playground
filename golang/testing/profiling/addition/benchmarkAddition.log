@@ -1,9 +1,0 @@
-goos: windows
-goarch: amd64
-pkg: github.com/veegrace/go-profiling/addition
-cpu: Intel(R) Core(TM) i3-9100 CPU @ 3.60GHz
-BenchmarkAddition-4   	1000000000	         0.2656 ns/op	       0 B/op	       0 allocs/op
-PASS
-ok  	github.com/veegrace/go-profiling/addition	0.652s
-
-> go test -bench BenchmarkAddition -benchmem &>> benchmarkAddition.log

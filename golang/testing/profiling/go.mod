@@ -1,4 +1,4 @@
-module github.com/veegrace/go-profiling
+module github.com/veegrace/playground/golang/testing/profiling
 
 go 1.20
 

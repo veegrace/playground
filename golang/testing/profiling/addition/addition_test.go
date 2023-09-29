@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/veegrace/go-profiling/addition"
+	"github.com/veegrace/playground/golang/testing/profiling/addition"
 )
 
 func TestAddition(t *testing.T) {
