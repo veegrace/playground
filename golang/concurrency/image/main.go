@@ -26,7 +26,7 @@ type job struct {
 	OutPath   string
 }
 
-func loadImage(done <-chan interface{}, paths []string) <-chan job {
+func loadImage(paths []string) <-chan job {
 	out := make(chan job)
 	go func() {
 		// This is to ensure that the channel is closed after all the jobs are done.
@@ -38,24 +38,19 @@ func loadImage(done <-chan interface{}, paths []string) <-chan job {
 		// For each input path create a job and add it to
 		// the out channel
 		for _, p := range paths {
-			select {
-			case <-done:
-				return
-			default:
-				job := job{
-					InputPath: p,
-					OutPath:   strings.Replace(p, "images/", "images/output/", 1),
-				}
-
-				job.Image = processor.ReadImage(p)
-				out <- job
+			job := job{
+				InputPath: p,
+				OutPath:   strings.Replace(p, "images/", "images/output/", 1),
 			}
+
+			job.Image = processor.ReadImage(p)
+			out <- job
 		}
 	}()
 	return out
 }
 
-func resize(done <-chan interface{}, in <-chan job) <-chan job {
+func resize(in <-chan job) <-chan job {
 	out := make(chan job)
 	go func() {
 		// This is to ensure that the channel is closed after all the jobs are done.
@@ -65,19 +60,14 @@ func resize(done <-chan interface{}, in <-chan job) <-chan job {
 		}()
 
 		for job := range in { // Read from the input channel
-			select {
-			case <-done:
-				return
-			default:
-				job.Image = processor.Resize(job.InputPath, job.Image)
-				out <- job
-			}
+			job.Image = processor.Resize(job.InputPath, job.Image)
+			out <- job
 		}
 	}()
 	return out
 }
 
-func convertToGrayscale(done <-chan interface{}, in <-chan job) <-chan job {
+func convertToGrayscale(in <-chan job) <-chan job {
 	out := make(chan job)
 	go func() {
 		// This is to ensure that the channel is closed after all the jobs are done.
@@ -87,19 +77,14 @@ func convertToGrayscale(done <-chan interface{}, in <-chan job) <-chan job {
 		}()
 
 		for job := range in { // Read from the input channel
-			select {
-			case <-done:
-				return
-			default:
-				job.Image = processor.Grayscale(job.InputPath, job.Image)
-				out <- job
-			}
+			job.Image = processor.Grayscale(job.InputPath, job.Image)
+			out <- job
 		}
 	}()
 	return out
 }
 
-func saveImage(done <-chan interface{}, in <-chan job) <-chan bool {
+func saveImage(in <-chan job) <-chan bool {
 	out := make(chan bool)
 	go func() {
 		// This is to ensure that the channel is closed after all the jobs are done.
@@ -109,13 +94,8 @@ func saveImage(done <-chan interface{}, in <-chan job) <-chan bool {
 		}()
 
 		for job := range in { // Read from the input channel
-			select {
-			case <-done:
-				return
-			default:
-				processor.WriteImage(job.OutPath, job.Image)
-				out <- true
-			}
+			processor.WriteImage(job.OutPath, job.Image)
+			out <- true
 		}
 	}()
 	return out
@@ -129,13 +109,10 @@ func main() {
 		"images/image4.jpeg",
 	}
 
-	done := make(chan interface{})
-	defer close(done)
-
-	channel1 := loadImage(done, imagePaths)
-	channel2 := resize(done, channel1)
-	channel3 := convertToGrayscale(done, channel2)
-	writeResults := saveImage(done, channel3)
+	channel1 := loadImage(imagePaths)
+	channel2 := resize(channel1)
+	channel3 := convertToGrayscale(channel2)
+	writeResults := saveImage(channel3)
 
 	for success := range writeResults {
 		if success {
@@ -144,9 +121,4 @@ func main() {
 			fmt.Println("Failed!")
 		}
 	}
-	// Significance of the closing out channel of each stage,
-	// channel is closed individually right after each stage is done processing.
-	//
-	// ref: close(out)
-	// each stage in the pipeline.
 }
