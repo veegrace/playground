@@ -1,24 +1,21 @@
 package vault
 
 import (
-	"golang.org/x/net/context"
-
-	"github.com/matryer/goblueprints/chapter10/vault/pb"
+	"context"
 
 	grpctransport "github.com/go-kit/kit/transport/grpc"
+	"github.com/veegrace/playground/golang/start/microservices/chapter10/vault/pb"
 )
 
 // NewGRPCServer gets a new pb.VaultServer.
-func NewGRPCServer(ctx context.Context, endpoints Endpoints) pb.VaultServer {
+func NewGRPCServer(endpoints Endpoints) pb.VaultServer {
 	return &grpcServer{
 		hash: grpctransport.NewServer(
-			ctx,
 			endpoints.HashEndpoint,
 			DecodeGRPCHashRequest,
 			EncodeGRPCHashResponse,
 		),
 		validate: grpctransport.NewServer(
-			ctx,
 			endpoints.ValidateEndpoint,
 			DecodeGRPCValidateRequest,
 			EncodeGRPCValidateResponse,

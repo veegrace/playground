@@ -11,12 +11,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/matryer/goblueprints/chapter10/vault"
-	"github.com/matryer/goblueprints/chapter10/vault/pb"
+	"github.com/veegrace/playground/golang/start/microservices/chapter10/vault"
+	"github.com/veegrace/playground/golang/start/microservices/chapter10/vault/pb"
 
 	"google.golang.org/grpc"
-
-	"golang.org/x/net/context"
 )
 
 func main() {
@@ -50,7 +48,7 @@ func main() {
 			return
 		}
 		log.Println("grpc:", *grpcAddr)
-		handler := vault.NewGRPCServer(ctx, endpoints)
+		handler := vault.NewGRPCServer(endpoints)
 		gRPCServer := grpc.NewServer()
 		pb.RegisterVaultServer(gRPCServer, handler)
 		errChan <- gRPCServer.Serve(listener)
